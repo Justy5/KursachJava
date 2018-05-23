@@ -1,0 +1,21 @@
+X-Lite.exe
+X-Lite
+X-Lite
+0
+0
+0
+0
+0
+-action=call?to="%1"
+-action=call?to="%1"
+-action=call?to="%1"
+-action=vccs?to="%1"
+-action=call?to="%1"
+0
+X-Lite
+CounterPath
+SOFTWARE\CounterPath\DesktopApi
+false
+9bdeeb92-62a1-4917-9e53-63aabd2c5c72
+false
+CounterPath Corporation
