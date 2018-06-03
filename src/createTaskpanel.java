@@ -3,6 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Date;
 
 class TaskPanel extends  TransparentJPanel{
 
@@ -50,11 +51,11 @@ class TaskPanel extends  TransparentJPanel{
         newTaskName = new JLabel();
         newTaskName.setText("Нові задачі");
         newTaskCount = new JLabel();
-        newTaskCount.setText("150");
+        newTaskCount.setText("0");
         newTaskCount.setFont(new Font("Arial", Font.PLAIN, 56));
         newTaskProcent = new JLabel();
         newTaskProcent.setFont(new Font("Arial", Font.PLAIN, 28));
-        newTaskProcent.setText("100%");
+        newTaskProcent.setText("0%");
         upperTaskPanel.add(newTaskName);
         upperTaskPanel.add(Box.createHorizontalGlue());
         bottomTaskPanel.add(newTaskCount);
@@ -89,10 +90,10 @@ class TaskPanel extends  TransparentJPanel{
         TaskInProcessName = new JLabel();
         TaskInProcessName.setText("Незакінчені задачі");
         TaskInProcessCount = new JLabel();
-        TaskInProcessCount.setText("150");
+        TaskInProcessCount.setText("0");
         TaskInProcessCount.setFont(new Font("Arial", Font.PLAIN, 56));
         TaskInProcessProcent = new JLabel();
-        TaskInProcessProcent.setText("100%");
+        TaskInProcessProcent.setText("0%");
         TaskInProcessProcent.setFont(new Font("Arial", Font.PLAIN, 28));
         upperTaskInProcessPanel.add(TaskInProcessName);
         upperTaskInProcessPanel.add(Box.createHorizontalGlue());
@@ -127,11 +128,11 @@ class TaskPanel extends  TransparentJPanel{
         SuccessTaskName = new JLabel();
         SuccessTaskName.setText("Завершені задачі");
         SuccessTaskCount = new JLabel();
-        SuccessTaskCount.setText("150");
+        SuccessTaskCount.setText("0");
         SuccessTaskCount.setFont(new Font("Arial", Font.PLAIN, 56));
         SuccessTaskProc = new JLabel();
         SuccessTaskProc.setFont(new Font("Arial", Font.PLAIN, 28));
-        SuccessTaskProc.setText("100%");
+        SuccessTaskProc.setText("0%");
         upperSuccessPanel.add(SuccessTaskName);
         upperSuccessPanel.add(Box.createHorizontalGlue());
         bottomSuccessPanel.add(SuccessTaskCount);
@@ -168,10 +169,10 @@ class TaskPanel extends  TransparentJPanel{
         DroppedTaskName = new JLabel();
         DroppedTaskName.setText("Провалені задачі");
         DroppedTaskCount = new JLabel();
-        DroppedTaskCount.setText("150");
+        DroppedTaskCount.setText("0");
         DroppedTaskCount.setFont(new Font("Arial", Font.PLAIN, 56));
         DroppedTaskProcent = new JLabel();
-        DroppedTaskProcent.setText("100%");
+        DroppedTaskProcent.setText("0%");
         DroppedTaskProcent.setFont(new Font("Arial", Font.PLAIN, 28));
 
         upperDroppedPanel.add(DroppedTaskName);
@@ -197,25 +198,25 @@ class TaskPanel extends  TransparentJPanel{
         newTaskCount.setText(newTaskCounter+"");
         local = (float)newTaskCounter/countTask*100;
         newTaskProcent.setText((int)local +"%");
-        System.out.println("New " + newTaskCounter);
 
-        int InProcessTaskCounter = countLines( "In Process");
+
+        int InProcessTaskCounter = countLines( "Not Done");
         TaskInProcessCount.setText(InProcessTaskCounter+"");
         local = (float)InProcessTaskCounter/countTask*100;
         TaskInProcessProcent.setText((int)local +"%");
-        System.out.println("InProcess " + InProcessTaskCounter);
+
 
         int SuccessTaskCounter = countLines( "Done");
         SuccessTaskCount.setText(SuccessTaskCounter+"");
         local = (float)SuccessTaskCounter/countTask*100;
         SuccessTaskProc.setText((int)local +"%");
-        System.out.println("SuccessTask " + SuccessTaskCounter);
+
 
         int DroppedTaskCounter = countLines( "Dropped");
         DroppedTaskCount.setText(DroppedTaskCounter+"");
         local = (float)DroppedTaskCounter/countTask*100;
         DroppedTaskProcent.setText((int)local +"%");
-        System.out.println("DroppedTask " + DroppedTaskCounter);
+
 
 
 
@@ -224,7 +225,7 @@ class TaskPanel extends  TransparentJPanel{
 
     int countLines(String stat) throws Exception{
         Statement statement = DB.getConnection().createStatement();
-        ResultSet task = statement.executeQuery("SELECT * FROM `tasks` WHERE Performer = " + Session.sessionId + " AND status = '" + stat +"'" );
+        ResultSet task = statement.executeQuery("SELECT * FROM `tasks` WHERE Performer = " + Session.sessionId + " AND status = '" + stat +"' AND timeCreate LIKE '%" + DateFormat.stringDateTime(new Date()).substring(3, DateFormat.stringDateTime(new Date()).length()-6) + "%'");
 
         int counter=0;
         while (task.next())
@@ -235,7 +236,7 @@ class TaskPanel extends  TransparentJPanel{
 
     int countLines() throws Exception{
         Statement statement = DB.getConnection().createStatement();
-        ResultSet task = statement.executeQuery("SELECT * FROM `tasks` WHERE Performer = " + Session.sessionId );
+        ResultSet task = statement.executeQuery("SELECT * FROM `tasks` WHERE Performer = " + Session.sessionId + " AND timeCreate LIKE '%" + DateFormat.stringDateTime(new Date()).substring(3, DateFormat.stringDateTime(new Date()).length()-6) + "%'");
 
         int counter=0;
         while (task.next())

@@ -248,7 +248,6 @@ public class FirstTab {
         notifications.createNotifications();
         notifications.setPreferredSize(new Dimension(Start.wwidth/10*4, 200));
         notifications.setMaximumSize(new Dimension(Start.wwidth/10*4, 200));
-        System.out.println("notify " + notifications.getPreferredSize().width +" "+ notifications.getPreferredSize().height);
         inputClientBlock.add(notifications);
 
         return inputClientBlock;
@@ -266,7 +265,6 @@ public class FirstTab {
 */
         Statement CompanyStatement = DB.getConnection().createStatement();
         ResultSet clientSet = CompanyStatement.executeQuery("SELECT timeAdded from clients WHERE timeAdded LIKE '%" + DateFormat.stringDateTime(new Date()).substring(3, DateFormat.stringDateTime(new Date()).length()-6) + "%' ORDER BY timeAdded ");
-        System.out.println("SELECT timeAdded from clients WHERE timeAdded LIKE '%" + DateFormat.stringDateTime(new Date()).substring(3, DateFormat.stringDateTime(new Date()).length()-6) + "%' ORDER BY timeAdded ");
         String prevtime = null;
         int iter = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
@@ -295,32 +293,33 @@ public class FirstTab {
 
         List<Date> newXData = new ArrayList<>();
         List<Double> newYData = new ArrayList<>();
+        if(xData.size()>0) {
+            LocalDate start = xData.get(0).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate end = xData.get(xData.size() - 1).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate next = start.minusDays(1);
+            int i = 0, k = 0;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            while ((next = next.plusDays(1)).isBefore(end.plusDays(1))) {
+                if (next.format(formatter).equals(xData.get(i).toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(formatter))) {
+                    newXData.add(k, Date.from(next.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                    newYData.add(yData.get(i));
+                    i++;
+                } else {
+                    newXData.add(k, Date.from(next.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                    newYData.add(0.d);
+                }
 
-        LocalDate start = xData.get(0).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate end = xData.get(xData.size()-1).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate next = start.minusDays(1);
-        int i = 0, k = 0;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        while((next = next.plusDays(1)).isBefore(end.plusDays(1))) {
-            if(next.format(formatter).equals(xData.get(i).toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(formatter))){
-                newXData.add(k, Date.from(next.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                newYData.add(yData.get(i));
-                i++;
+
+                k++;
             }
-            else {
-                newXData.add(k, Date.from(next.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                newYData.add(0.d);
-            }
-
-
-            k++;
-        }
-        errorBars = newYData;
+            errorBars = newYData;
 
 
         chart.getStyler().setDecimalPattern("#0");
         chart.getStyler().setDatePattern("dd.MM");
-        chart.updateXYSeries(" ",newXData,newYData, errorBars);
+        chart.removeSeries(" ");
+        chart.addSeries(" ", newXData, newYData);
+        }
     }
 
     void updateStatisticMoney() throws Exception{
@@ -349,13 +348,13 @@ public class FirstTab {
             double money = Double.parseDouble(tempMoneyString[1].substring(0,tempMoneyString[1].length()-5));
 
             String time = moneySet.getString("time");
-            System.out.println(prevtime + " " + time);
+
             time = time.substring(0, time.length()-6);
             if(prevtime.equals(time)){
-                System.out.println("yes");
+
                 yData.set(iter, yData.get(iter)+money);
             } else {
-                System.out.println("no");
+
                 ++iter;
                 xData.add(sdf.parse(time));
                 yData.add(money);
@@ -366,43 +365,35 @@ public class FirstTab {
 
         }
 
-        for (int j = 0; j < xData.size(); j++) {
-            System.out.println(xData.get(j) + " " + yData.get(j));
-        }
-
-
         List<Date> newXData = new ArrayList<>();
         List<Double> newYData = new ArrayList<>();
+        if(xData.size()>0) {
+            LocalDate start = xData.get(0).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate end = xData.get(xData.size() - 1).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate next = start.minusDays(1);
+            int i = 0, k = 0;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            while ((next = next.plusDays(1)).isBefore(end.plusDays(1))) {
+                if (next.format(formatter).equals(xData.get(i).toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(formatter))) {
+                    newYData.add(yData.get(i));
+                    newXData.add(k, Date.from(next.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                    i++;
+                } else {
+                    newXData.add(k, Date.from(next.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                    newYData.add(0.d);
+                }
 
-        LocalDate start = xData.get(0).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate end = xData.get(xData.size()-1).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate next = start.minusDays(1);
-        int i = 0, k = 0;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        while((next = next.plusDays(1)).isBefore(end.plusDays(1))) {
-            System.out.print("ty " + next.format(formatter) + " " + xData.get(i).toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(formatter));
-            if(next.format(formatter).equals(xData.get(i).toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(formatter))){
-                newYData.add(yData.get(i));
-                newXData.add(k, Date.from(next.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                i++;
+                k++;
             }
-            else {
-                newXData.add(k, Date.from(next.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                newYData.add(0.d);
-            }
+            errorBars = newYData;
 
-            System.out.println(" " + newYData.get(k));
-            k++;
+
+
+            Chart.getStyler().setDecimalPattern("# грн.");
+            Chart.getStyler().setDatePattern("dd.MM");
+            Chart.removeSeries(" ");
+            Chart.addSeries(" ", newXData, newYData);
         }
-        errorBars = newYData;
-       /* for (int j = 0; j < newXData.size(); j++) {
-            System.out.println(newXData.get(j) + " " + newYData.get(j));
-        }*/
-
-
-        Chart.getStyler().setDecimalPattern("# грн.");
-        Chart.getStyler().setDatePattern("dd.MM");
-        Chart.updateXYSeries(" ",newXData,newYData, errorBars);
     }
 
 

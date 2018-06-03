@@ -69,7 +69,6 @@ public class NotificationBlock extends JPanel {
                     regName = registers.getString("manager_name");
 
 
-                /*System.out.println(toCl);*/
                 ResultSet clients = Statement.executeQuery("SELECT * FROM clients WHERE id = "
                         + toCl);
 
@@ -233,7 +232,6 @@ public class NotificationBlock extends JPanel {
                     regName = registers.getString("manager_name");
 
 
-                /*System.out.println(toCl);*/
                 ResultSet clients = Statement.executeQuery("SELECT * FROM clients WHERE id = "
                         + toCl);
 

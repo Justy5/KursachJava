@@ -10,14 +10,13 @@ public class LogsTab {
     JPanel table, idPanel, logerPanel, subjectPanel, toSmbdPanel, timePanel;
 
     TransparentJPanel create(TransparentJPanel panel) throws Exception{
-        UIManager.put("Panel.background", new Color(180, 216, 219));
+        UIManager.put("Panel.background", new Color(180, 208, 255));
         innerPanel = new JPanel();
         panel.add(innerPanel);
         innerPanel.setPreferredSize(new Dimension(Start.wwidth / 8 * 7, Start.wheight));
         innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.PAGE_AXIS));
         generate(page);
         addPageScroller();
-
         return panel;
     }
 
@@ -39,7 +38,7 @@ public class LogsTab {
         idLbl.setAlignmentX(TextField.CENTER_ALIGNMENT);
         idPanel.add(idLbl);
         idPanel.setLayout(new BoxLayout(idPanel, BoxLayout.PAGE_AXIS));
-        idPanel.setMinimumSize(new Dimension(20,10));
+        idPanel.setMinimumSize(new Dimension(20,27));
         table.add(idPanel);
 
         table.add(Box.createHorizontalGlue());
@@ -49,7 +48,7 @@ public class LogsTab {
         logerLbl.setAlignmentX(TextField.CENTER_ALIGNMENT);
         logerPanel.add(logerLbl);
         logerPanel.setLayout(new BoxLayout(logerPanel, BoxLayout.PAGE_AXIS));
-        logerPanel.setMinimumSize(new Dimension(20,10));
+        logerPanel.setMinimumSize(new Dimension(20,27));
         table.add(logerPanel);
 
         table.add(Box.createHorizontalGlue());
@@ -59,7 +58,7 @@ public class LogsTab {
         subjectLbl.setAlignmentX(TextField.CENTER_ALIGNMENT);
         subjectPanel.add(subjectLbl);
         subjectPanel.setLayout(new BoxLayout(subjectPanel, BoxLayout.PAGE_AXIS));
-        subjectPanel.setMinimumSize(new Dimension(20,10));
+        subjectPanel.setMinimumSize(new Dimension(20,27));
         table.add(subjectPanel);
 
         table.add(Box.createHorizontalGlue());
@@ -69,7 +68,7 @@ public class LogsTab {
         toSmbdLbl.setAlignmentX(TextField.CENTER_ALIGNMENT);
         toSmbdPanel.add(toSmbdLbl);
         toSmbdPanel.setLayout(new BoxLayout(toSmbdPanel, BoxLayout.PAGE_AXIS));
-        toSmbdPanel.setMinimumSize(new Dimension(20,10));
+        toSmbdPanel.setMinimumSize(new Dimension(20,27));
         table.add(toSmbdPanel);
 
         table.add(Box.createHorizontalGlue());
@@ -79,7 +78,7 @@ public class LogsTab {
         timeLbl.setAlignmentX(TextField.CENTER_ALIGNMENT);
         timePanel.add(timeLbl);
         timePanel.setLayout(new BoxLayout(timePanel, BoxLayout.PAGE_AXIS));
-        timePanel.setMinimumSize(new Dimension(20,10));
+        timePanel.setMinimumSize(new Dimension(20,27));
         table.add(timePanel);
 
         table.add(Box.createHorizontalGlue());
@@ -87,12 +86,13 @@ public class LogsTab {
         table.add(Box.createHorizontalGlue());
 
         Statement statement = DB.getConnection().createStatement();
-        ResultSet res = statement.executeQuery("SELECT * from logs ORDER BY id DESC LIMIT " + page*24 + ", " + 24);
+        ResultSet res = statement.executeQuery("SELECT * from logs ORDER BY id DESC LIMIT " + page*19 + ", " + 19);
         while (res.next()){
             int localId = res.getInt(1);
             JTextField id = new JTextField(localId + "");
             id.setPreferredSize(new Dimension(20, 27));
-            id.setMaximumSize(new Dimension(100, 27));
+            id.setMaximumSize(new Dimension(20, 27));
+            id.setMinimumSize(new Dimension(20, 27));
             id.setAlignmentX(TextField.CENTER_ALIGNMENT);
             id.setEditable(false);
             idPanel.add(id);
@@ -102,6 +102,7 @@ public class LogsTab {
             JTextField loger = new JTextField(" ");
             loger.setPreferredSize(new Dimension(200, 27));
             loger.setMaximumSize(new Dimension(200, 27));
+            loger.setMinimumSize(new Dimension(200, 27));
             loger.setAlignmentX(TextField.CENTER_ALIGNMENT);
             if(logerSet.next())
                 loger.setText(logerSet.getString("manager_name"));
@@ -112,6 +113,7 @@ public class LogsTab {
             content.setAlignmentX(TextField.CENTER_ALIGNMENT);
             content.setPreferredSize(new Dimension(450, 27));
             content.setMaximumSize(new Dimension(450, 27));
+            content.setMinimumSize(new Dimension(450, 27));
             content.setEditable(false);
             subjectPanel.add(content);
 
@@ -120,6 +122,7 @@ public class LogsTab {
             JTextField toSmbd = new JTextField(" ");
             toSmbd.setPreferredSize(new Dimension(200, 27));
             toSmbd.setMaximumSize(new Dimension(200, 27));
+            toSmbd.setMinimumSize(new Dimension(200, 27));
             toSmbd.setAlignmentX(TextField.CENTER_ALIGNMENT);
             if(toSmbdSet.next())
                 toSmbd.setText(toSmbdSet.getString("SurName") + " " + toSmbdSet.getString("Name") + " " + toSmbdSet.getString("LastName"));

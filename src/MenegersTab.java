@@ -2,25 +2,27 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Base64;
 import java.util.Date;
 
-
-public class SalesTab {
+public class MenegersTab {
     JPanel innerPanel, innerAddPanel, innerAdditionalPanel;
-    JPanel addSalePanel, searchSalePanel;
-    JTextField aSubject, aPrice, aDuration;
-    JComboBox aTimeValue;
+    JPanel addSalePanel, overSalePanel, searchSalePanel;
+    JTextField aid, aSubject, aPrice, aDuration;
+    JComboBox astatus;
 
-    JPanel searchid, searchSubject, searchPrice, infoPanel, searchDuration, searchTimeValue,  reEditbtnPanel, deleteBtnPanel;
-    JComboBox sTimeValue;
+    JButton searchButton;
+    JScrollPane List;
+    JPanel searchid, searchName, searchLogin, infoPanel, password, searchEmail, searchStatus,  reEditbtnPanel, deleteBtnPanel;
+    JTextField sid, sName, sLogin, sEmail;
+    JComboBox sstatus;
 
 
     TransparentJPanel create(TransparentJPanel panel){
-        UIManager.put("Panel.background", new Color(180, 216, 219));
+
         innerPanel = new JPanel();
         panel.add(innerPanel);
         innerPanel.setPreferredSize(new Dimension(Start.wwidth / 8 * 7, Start.wheight));
-
 
         searchSale();
         addSale();
@@ -28,6 +30,11 @@ public class SalesTab {
         return panel;
     }
 
+    void updatePanel(){
+        innerPanel.removeAll();
+        searchSale();
+        addSale();
+    }
 
     void searchSale() {
         innerPanel.add(Box.createRigidArea(new Dimension(40, 40)));
@@ -39,10 +46,9 @@ public class SalesTab {
         innerPanel.add(Box.createRigidArea(new Dimension(15, 15)));
 
         searchSalePanel.setMinimumSize(new Dimension(500, 100));
-
         searchSalePanel.setLayout(new BoxLayout(searchSalePanel, BoxLayout.PAGE_AXIS));
 
-        UIManager.put("Panel.background", new Color(180, 208, 255));
+        UIManager.put("Panel.background", new Color(181, 208, 255));
         infoPanel = new JPanel();
 
         searchSalePanel.add(Box.createVerticalGlue());
@@ -65,50 +71,59 @@ public class SalesTab {
         searchid.add(idLbl);
         infoPanel.add(Box.createRigidArea(new Dimension(10,5)));
         infoPanel.add(searchid);
-
-
         infoPanel.add(Box.createRigidArea(new Dimension(15,5)));
 
 
-        searchSubject = new JPanel();
+        searchName = new JPanel();
 
-        searchSubject.setLayout(new BoxLayout(searchSubject, BoxLayout.PAGE_AXIS));
-        JLabel subjectLbl = new JLabel("Послуга");
-        searchSubject.add(subjectLbl);
-        subjectLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
-        infoPanel.add(searchSubject);
-
-        infoPanel.add(Box.createRigidArea(new Dimension(15,5)));
-
-        searchPrice = new JPanel();
-
-        searchPrice.setLayout(new BoxLayout(searchPrice, BoxLayout.PAGE_AXIS));
-        JLabel priceLbl = new JLabel("Ціна ");
-        priceLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
-        searchPrice.add(priceLbl);
-        infoPanel.add(searchPrice);
+        searchName.setLayout(new BoxLayout(searchName, BoxLayout.PAGE_AXIS));
+        JLabel nameLbl = new JLabel("Ім'я");
+        searchName.add(nameLbl);
+        nameLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
+        infoPanel.add(searchName);
 
         infoPanel.add(Box.createRigidArea(new Dimension(15,5)));
 
-        searchDuration = new JPanel();
+        searchLogin = new JPanel();
 
-        searchDuration.setLayout(new BoxLayout(searchDuration, BoxLayout.PAGE_AXIS));
-        JLabel durationLbl = new JLabel("тривалість");
-        durationLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
-        searchDuration.add(durationLbl);
-        infoPanel.add(searchDuration);
-
-
-
-        searchTimeValue = new JPanel();
-
-        searchTimeValue.setLayout(new BoxLayout(searchTimeValue, BoxLayout.PAGE_AXIS));
-        JLabel timeValue = new JLabel(" ");
-        timeValue.setAlignmentX(Label.LEFT_ALIGNMENT);
-        searchTimeValue.add(timeValue);
-        infoPanel.add(searchTimeValue);
+        searchLogin.setLayout(new BoxLayout(searchLogin, BoxLayout.PAGE_AXIS));
+        JLabel loginLbl = new JLabel("Логін");
+        loginLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
+        searchLogin.add(loginLbl);
+        infoPanel.add(searchLogin);
 
         infoPanel.add(Box.createRigidArea(new Dimension(15,5)));
+
+        searchEmail = new JPanel();
+
+        searchEmail.setLayout(new BoxLayout(searchEmail, BoxLayout.PAGE_AXIS));
+        JLabel emailLbl = new JLabel("Email");
+        emailLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
+        searchEmail.add(emailLbl);
+        infoPanel.add(searchEmail);
+
+        infoPanel.add(Box.createRigidArea(new Dimension(15,5)));
+
+        searchStatus = new JPanel();
+
+        searchStatus.setLayout(new BoxLayout(searchStatus, BoxLayout.PAGE_AXIS));
+        JLabel status = new JLabel("Статус");
+        status.setAlignmentX(Label.LEFT_ALIGNMENT);
+        searchStatus.add(status);
+        infoPanel.add(searchStatus);
+
+        infoPanel.add(Box.createRigidArea(new Dimension(15,5)));
+
+        password = new JPanel();
+
+        password.setLayout(new BoxLayout(password, BoxLayout.PAGE_AXIS));
+        JLabel passValue = new JLabel("Пароль");
+        passValue.setAlignmentX(Label.LEFT_ALIGNMENT);
+        password.add(passValue);
+        infoPanel.add(password);
+
+        infoPanel.add(Box.createRigidArea(new Dimension(15,5)));
+
 
         reEditbtnPanel = new JPanel();
 
@@ -126,7 +141,7 @@ public class SalesTab {
 
         infoPanel.add(Box.createHorizontalGlue());
 
-        findSales("SELECT * FROM sales ORDER BY Subject");
+        findSales("SELECT * FROM menegers ORDER BY id");
 
 
         searchSalePanel.add(Box.createVerticalGlue());
@@ -139,9 +154,6 @@ public class SalesTab {
     void findSales(String str) {
 
         try {
-
-
-
             Statement numState = DB.getConnection().createStatement();
             ResultSet num = numState.executeQuery(str);
             int rows = 0;
@@ -164,36 +176,36 @@ public class SalesTab {
                     searchid.add(sid);
 
 
-                    JTextField sSubject = new JTextField();
-                    sSubject.setPreferredSize(new Dimension(500, 0));
-                    sSubject.setMaximumSize(new Dimension(500, 26));
-                    sSubject.setAlignmentX(TextField.LEFT_ALIGNMENT);
-                    searchSubject.add(sSubject);
+                    JTextField sName = new JTextField();
+                    sName.setPreferredSize(new Dimension(200, 0));
+                    sName.setMaximumSize(new Dimension(200, 26));
+                    sName.setAlignmentX(TextField.LEFT_ALIGNMENT);
+                    searchName.add(sName);
 
 
-                    JTextField sPrice = new JTextField();
-                    sPrice.setPreferredSize(new Dimension(100, 26));
-                    sPrice.setMaximumSize(new Dimension(100, 26));
-                    sPrice.setAlignmentX(TextField.LEFT_ALIGNMENT);
-                    searchPrice.add(sPrice);
+                    JTextField sLogin = new JTextField();
+                    sLogin.setPreferredSize(new Dimension(100, 26));
+                    sLogin.setMaximumSize(new Dimension(100, 26));
+                    sLogin.setAlignmentX(TextField.LEFT_ALIGNMENT);
+                    searchLogin.add(sLogin);
 
 
-                    JTextField sDuration = new JTextField();
-                    sDuration.setMaximumSize(new Dimension(50, 26));
-                    sDuration.setAlignmentX(TextField.LEFT_ALIGNMENT);
-                    sDuration.setEditable(false);
-                    searchDuration.add(sDuration);
+                    JTextField sEmail = new JTextField();
+                    sEmail.setMaximumSize(new Dimension(250, 26));
+                    sEmail.setAlignmentX(TextField.LEFT_ALIGNMENT);
+                    searchEmail.add(sEmail);
 
 
-                    JComboBox TimeValue = new JComboBox();
-                    TimeValue.setMaximumSize(new Dimension(75, 26));
-                    TimeValue.addItem("година");
-                    TimeValue.addItem("12 годин");
-                    TimeValue.addItem("доба");
-                    TimeValue.setAlignmentX(TextField.LEFT_ALIGNMENT);
-                    searchTimeValue.add(TimeValue);
+                    JTextField sStatus = new JTextField();
+                    sStatus.setMaximumSize(new Dimension(75, 26));
+                    sStatus.setAlignmentX(TextField.LEFT_ALIGNMENT);
+                    searchStatus.add(sStatus);
 
-
+                    JTextField sPass = new JTextField();
+                    sPass.setMaximumSize(new Dimension(150, 26));
+                    sPass.setPreferredSize(new Dimension(150, 26));
+                    sPass.setAlignmentX(TextField.LEFT_ALIGNMENT);
+                    password.add(sPass);
 
                     JButton submitAdd = new JButton("Оновити");
                     submitAdd.setPreferredSize(new Dimension(100, 50));
@@ -201,21 +213,21 @@ public class SalesTab {
                     reEditbtnPanel.add(submitAdd);
                     submitAdd.addActionListener(e -> {
                         try {
-                            int query = state.executeUpdate(" UPDATE sales SET " +
-                                    " Subject = '" + sSubject.getText() + "'," +
-                                    " Price = '" + sPrice.getText() + "'," +
-                                    " Duration = '" + sDuration.getText() + "'," +
-                                    " TimeValue = '" + TimeValue.getSelectedItem() + "' " +
+                            int query = state.executeUpdate(" UPDATE menegers SET " +
+                                    " manager_name = '" + sName.getText() + "'," +
+                                    " login = '" + sLogin.getText() + "'," +
+                                    " email = '" + sEmail.getText() + "'," +
+                                    " status = '" + sStatus.getText() + "', " +
+                                    " password = '" + new String(Base64.getEncoder().encode(sPass.getText().getBytes())) + "'" +
                                     " WHERE id = " + localID);
-
 
                             Statement stateLog = DB.getConnection().createStatement();
                             int insertLog = stateLog.executeUpdate("INSERT INTO logs(loger, Content, tosmbd, time) " +
-                                    "VALUES (" + Session.sessionId + ", 'Оновив послугу << " + sSubject.getText() + " з ціною: " + sPrice.getText() + " за 1 " + TimeValue.getSelectedItem() + " >> ', " + "0" + ",'" + DateFormat.stringDateTime(new Date()) + "')");
+                                    "VALUES (" + Session.sessionId + ", 'Оновив користувача << " + sName.getText() + " >> ', " + "0" + ",'" + DateFormat.stringDateTime(new Date()) + "')");
                             updatePanel();
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(innerAddPanel, "Помилка збереження!");
+                            JOptionPane.showMessageDialog(searchSalePanel, "Помилка збереження!");
                         }
                     });
 
@@ -225,12 +237,11 @@ public class SalesTab {
                     deleteBtnPanel.add(delete);
                     delete.addActionListener(e -> {
                         try {
-                            int query = stateDelete.executeUpdate(" DELETE FROM sales WHERE id = " + localID);
+                            int query = stateDelete.executeUpdate(" DELETE FROM menegers WHERE id = " + localID);
 
                             Statement stateLog = DB.getConnection().createStatement();
                             int insertLog = stateLog.executeUpdate("INSERT INTO logs(loger, Content, tosmbd, time) " +
-                                    "VALUES ( + " + Session.sessionId + ", 'Видалив послугу << " + sSubject.getText() + " з ціною: " + sPrice.getText() + " за 1 " + sTimeValue.getSelectedItem() + " >> ', " + " " + ",'" + DateFormat.stringDateTime(new Date()) + "')");
-
+                                    "VALUES ( + " + Session.sessionId + ", 'Видалив користувача << " + sName.getText() + " >> ', " + "0" + ",'" + DateFormat.stringDateTime(new Date()) + "')");
                             updatePanel();
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -240,10 +251,11 @@ public class SalesTab {
 
 
                     sid.setText(localID + "");
-                    sPrice.setText(res.getInt("Price") + "");
-                    sSubject.setText(res.getString("Subject"));
-                    sDuration.setText(res.getString("Duration"));
-                    TimeValue.setSelectedItem(res.getString("TimeValue"));
+                    sName.setText(res.getString("manager_name") + "");
+                    sLogin.setText(res.getString("login"));
+                    sEmail.setText(res.getString("email"));
+                    sStatus.setText(res.getString("status"));
+                    sPass.setText("");
                 }
             }
 
@@ -254,11 +266,7 @@ public class SalesTab {
         infoPanel.add(Box.createVerticalGlue());
     }
 
-    void updatePanel(){
-        innerPanel.removeAll();
-        searchSale();
-        addSale();
-    }
+
 
     void addSale(){
         innerAddPanel = new JPanel();
@@ -278,7 +286,7 @@ public class SalesTab {
         innerAddPanel.add(Box.createVerticalGlue());
 
         JPanel lblPanel = new JPanel();
-        JLabel addSubjLabel = new JLabel("Додати послугу");
+        JLabel addSubjLabel = new JLabel("Додати користувача");
         lblPanel.setPreferredSize(new Dimension(400, 40));
         lblPanel.setMaximumSize(new Dimension(400, 40));
         lblPanel.add(addSubjLabel);
@@ -303,7 +311,7 @@ public class SalesTab {
 
         JPanel subjPanel = new JPanel();
         subjPanel.setLayout(new BoxLayout(subjPanel, BoxLayout.PAGE_AXIS));
-        JLabel subjLbl = new JLabel("Послуга");
+        JLabel subjLbl = new JLabel("Ім'я");
         subjLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
         innerAdditionalPanel.add(subjLbl);
         aSubject = new JTextField();
@@ -316,25 +324,23 @@ public class SalesTab {
 
         JPanel pricePanel = new JPanel();
         pricePanel.setLayout(new BoxLayout(pricePanel, BoxLayout.PAGE_AXIS));
-        JLabel priceLbl = new JLabel("Ціна");
-        priceLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
-        innerAdditionalPanel.add(priceLbl);
+        JLabel loginLbl = new JLabel("Логін");
+        loginLbl.setAlignmentX(Label.LEFT_ALIGNMENT);
+        innerAdditionalPanel.add(loginLbl);
         aPrice = new JTextField();
-        aPrice.setMaximumSize(new Dimension(75, 26));
-        aPrice.setPreferredSize(new Dimension(75, 26));
+        aPrice.setMaximumSize(new Dimension(150, 26));
+        aPrice.setPreferredSize(new Dimension(150, 26));
         aPrice.setAlignmentX(TextField.LEFT_ALIGNMENT);
-        pricePanel.add(priceLbl);
+        pricePanel.add(loginLbl);
         pricePanel.add(aPrice);
 
 
 
         JPanel durationPanel = new JPanel();
         durationPanel.setLayout(new BoxLayout(durationPanel, BoxLayout.PAGE_AXIS));
-        JLabel duration = new JLabel("Тривалість");
+        JLabel duration = new JLabel("Email");
         duration.setAlignmentX(Label.LEFT_ALIGNMENT);
         aDuration = new JTextField();
-        aDuration.setText("1");
-        aDuration.setEditable(false);
         aDuration.setMaximumSize(new Dimension(75, 26));
         aDuration.setPreferredSize(new Dimension(75, 26));
         aDuration.setAlignmentX(TextField.LEFT_ALIGNMENT);
@@ -342,20 +348,19 @@ public class SalesTab {
         durationPanel.add(aDuration);
 
 
-        JPanel timeValuePanel = new JPanel();
-        timeValuePanel.setLayout(new BoxLayout(timeValuePanel, BoxLayout.PAGE_AXIS));
-        JLabel timeValue = new JLabel(" ");
-        timeValue.setAlignmentX(Label.LEFT_ALIGNMENT);
-        aTimeValue = new JComboBox();
-        aTimeValue.setMaximumSize(new Dimension(75, 26));
-        aTimeValue.setPreferredSize(new Dimension(75, 26));
-        aTimeValue.setAlignmentX(TextField.LEFT_ALIGNMENT);
-        aTimeValue.setSelectedItem("година");
-        aTimeValue.addItem("година");
-        aTimeValue.addItem("доба");
-        aTimeValue.addItem("тиждень");
-        timeValuePanel.add(timeValue);
-        timeValuePanel.add(aTimeValue);
+        JPanel statusPanel = new JPanel();
+        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.PAGE_AXIS));
+        JLabel status = new JLabel("Статус");
+        status.setAlignmentX(Label.LEFT_ALIGNMENT);
+        astatus = new JComboBox();
+        astatus.setMaximumSize(new Dimension(75, 26));
+        astatus.setPreferredSize(new Dimension(75, 26));
+        astatus.setAlignmentX(TextField.LEFT_ALIGNMENT);
+        astatus.addItem("admin");
+        astatus.addItem("user");
+        astatus.setSelectedItem("user");
+        statusPanel.add(status);
+        statusPanel.add(astatus);
 
 
         JPanel priceDurationPanel = new JPanel();
@@ -364,35 +369,45 @@ public class SalesTab {
         priceDurationPanel.add(pricePanel);
         priceDurationPanel.add(Box.createRigidArea(new Dimension(20,15)));
         priceDurationPanel.add(durationPanel);
-        priceDurationPanel.add(timeValuePanel);
+        priceDurationPanel.add(Box.createRigidArea(new Dimension(20,15)));
+        priceDurationPanel.add(statusPanel);
         innerAdditionalPanel.add(priceDurationPanel);
-        innerAdditionalPanel.setMaximumSize(new Dimension(innerAdditionalPanel.getPreferredSize().width, innerAdditionalPanel.getPreferredSize().height));
+        innerAdditionalPanel.setMaximumSize(new Dimension(innerAdditionalPanel.getPreferredSize().width, innerAdditionalPanel.getPreferredSize().height+150));
 
-        innerAdditionalPanel.add(Box.createRigidArea(new Dimension(20,35)));
-
+        innerAdditionalPanel.add(Box.createRigidArea(new Dimension(20,15)));
+        JPanel passPanel = new JPanel();
+        passPanel.setLayout(new BoxLayout(passPanel, BoxLayout.PAGE_AXIS));
+        JLabel passlbl = new JLabel("Пароль");
+        passPanel.add(passlbl);
+        passlbl.setAlignmentX(TextField.LEFT_ALIGNMENT);
+        JTextField pass = new JTextField();
+        pass.setAlignmentX(TextField.LEFT_ALIGNMENT);
+        pass.setMaximumSize(new Dimension(175, 26));
+        pass.setPreferredSize(new Dimension(175, 26));
+        passPanel.add(pass);
+        innerAdditionalPanel.add(passPanel);
+        innerAdditionalPanel.add(Box.createRigidArea(new Dimension(20,15)));
 
         JButton submitAdd = new JButton("Додати");
         submitAdd.addActionListener(e -> {
             try {
                 Statement statement = DB.getConnection().createStatement();
-                if(aSubject.getText()=="" || aPrice.getText()=="" || aDuration.getText()=="") {
+                if(aSubject.getText().length()<3 || aPrice.getText().length()<3 || aDuration.getText().length()<3) {
                     JOptionPane.showMessageDialog(innerAdditionalPanel, "Неповні дані! Перевірте правильність введених даних!");
                     throw new Exception("Неповні дані!");
                 }
-                int query = statement.executeUpdate("INSERT INTO sales (Subject, Price, Duration, TimeValue) " +
+                int query = statement.executeUpdate("INSERT INTO menegers(manager_name, login, email, status, password) " +
                         "VALUES (" +
                         "'" + aSubject.getText() + "'," +
                         "'" + aPrice.getText() + "'," +
                         "'" + aDuration.getText() + "'," +
-                        "'" + aTimeValue.getSelectedItem() + "'" +
+                        "'" + astatus.getSelectedItem() + "', " +
+                        "'" + pass.getText() + "'" +
                         ")");
-
 
                 Statement stateLog = DB.getConnection().createStatement();
                 int insertLog = stateLog.executeUpdate("INSERT INTO logs(loger, Content, tosmbd, time) " +
-                        "VALUES ( + " + Session.sessionId + ", 'Дадав нову послугу << " + aSubject.getText() + " з ціною: " + aPrice.getText() + " за 1 " + aTimeValue.getSelectedItem() + " >> ', " + "0" + ",'" + DateFormat.stringDateTime(new Date()) + "')");
-
-
+                        "VALUES ( + " + Session.sessionId + ", 'Додав користувача << " + aSubject.getText() + " з правами " + astatus.getSelectedItem() + " >> ', " + "0" + ",'" + DateFormat.stringDateTime(new Date()) + "')");
                 updatePanel();
             }catch (Exception ex){
                 ex.printStackTrace();
@@ -402,9 +417,7 @@ public class SalesTab {
         innerAdditionalPanel.add(submitAdd);
 
         addSalePanel.add(Box.createRigidArea(new Dimension(10,10)));
-
     }
-
 }
 
 

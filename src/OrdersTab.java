@@ -1,12 +1,8 @@
 import com.github.lgooddatepicker.components.DateTimePicker;
-import javafx.scene.control.ComboBox;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentListener;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
@@ -21,11 +17,12 @@ public class OrdersTab {
     JButton searchButton;
 
     JPanel lidPanel, lSaleSubj, lSaleCount, lSaleType, lClient, lMeneger, ltimeStart, lprice, ldeadLine, btnPanel, OverOverTablePanel;
-    JTextField saleCount, count;
+
     JPanel tSaleSubj, tSaleCount, tSaleType, tClient, ttimeStart, tprice, tdeadLine, updatePanel, retrivePanel;
     JPanel overAddPanel;
-    JTextField id, client, startTime, pricer, deadline;
-    JComboBox type, saleType, saleSubj, meneger;
+
+    JTextField count;
+    JComboBox type;
     JTextField price;
     int selectedSaleID = 0;
     int clientId = 0;
@@ -89,6 +86,7 @@ public class OrdersTab {
                 return 25;
             }
         } );
+        scrollPane.setPreferredSize(new Dimension(Start.wwidth/5*4, Start.wheight/2-50));
         overOrderPanel.add(scrollPane);
         OverOverTablePanel.setLayout(new BoxLayout(OverOverTablePanel, BoxLayout.PAGE_AXIS));
         OverOverTablePanel.add(overTablePanel);
@@ -318,8 +316,6 @@ public class OrdersTab {
                     Statement statement1 = DB.getConnection().createStatement();
                     int query = statement1.executeUpdate("UPDATE clients SET SpendSum = SpendSum + " + price.getText() + " WHERE id = " + idClient);
 
-
-
                     Statement stateLog = DB.getConnection().createStatement();
                     int insertLog = stateLog.executeUpdate("INSERT INTO logs(loger, Content, tosmbd, time) " +
                             "VALUES ( + " + Session.sessionId + ", 'Оформив замовлення << " + subj.getSelectedItem() + " на " + count.getText() + " " + type.getSelectedItem() + " >> за ціною: " + price.getText() +  " грн.', " + idClient + " ,'" + DateFormat.stringDateTime(new Date()) + "')");
@@ -329,12 +325,8 @@ public class OrdersTab {
             }catch (Exception ex){
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(overAddPanel, "Помилка вводу даних!");
-
             }
         });
-
-
-
 
         subj.setSelectedItem(" ");
         count.setText(" ");
@@ -348,6 +340,7 @@ public class OrdersTab {
         searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.LINE_AXIS));
 
         search = new JTextField();
+
 
         search.setMaximumSize(new Dimension(Start.wwidth/2, 27));
         search.setPreferredSize(new Dimension(Start.wwidth/2, 27));
@@ -462,6 +455,9 @@ public class OrdersTab {
 
             gener = true;
 
+            JTextField id, client, saleCount, startTime, pricer, deadline;
+            JComboBox saleType, saleSubj, meneger;
+
             int localId = res.getInt("id");
             id = new JTextField(localId + "");
             id.setMinimumSize(new Dimension(50, 27));
@@ -483,11 +479,15 @@ public class OrdersTab {
             ResultSet sales = statement1.executeQuery("SELECT * FROM sales");
             String selectedSale = null;
 
+            JTextField localid = new JTextField();
+            localid.setVisible(false);
+
             while(sales.next()) {
                 int tempid = sales.getInt("id");
                 if(tempid == saleId){
                     selectedSale = sales.getString("Subject");
-                    selectedSaleID = sales.getInt("id");
+                    selectedSaleID = tempid;
+                    localid.setText(tempid + "");
                     saleSubj.addItem(selectedSale);
                 } else {
                     saleSubj.addItem(sales.getString("Subject"));
@@ -508,6 +508,8 @@ public class OrdersTab {
             saleCount.setAlignmentX(TextField.CENTER_ALIGNMENT);
             lSaleCount.add(Box.createRigidArea(new Dimension(1,4)));
             lSaleCount.add(saleCount);
+
+
 
             saleType = new JComboBox();
             saleType.addItem("година");
@@ -578,15 +580,27 @@ public class OrdersTab {
 
             /*****************************************************/
 
-            getPrice();
+
 
 
             pricer = new JTextField(actualSalePrice + "");
+            pricer.setEditable(false);
             pricer.setPreferredSize(new Dimension(75, 27));
             pricer.setMaximumSize(new Dimension(75, 27));
             pricer.setMinimumSize(new Dimension(75, 27));
             lprice.add(Box.createRigidArea(new Dimension(1,4)));
             lprice.add(pricer);
+
+
+            getPrice();
+
+
+
+
+            saleCount.addActionListener(e -> {
+                pricer.setText(getPrice(Integer.parseInt(localid.getText()), saleCount, saleType) + "");
+            });
+
 
             String dead = res.getString("deadLine");
             deadline = new JTextField(dead);
@@ -624,17 +638,14 @@ public class OrdersTab {
                             " SaleType = '" + saleType.getSelectedItem() + "', " +
                             " ClientID = " + clientId + ", " +
                             " ManegerID = " + menegerId + ", " +
-                            " startTime = '" + startTime.getText().substring(0,16) + "'" + ", " +
-                            " price = " + actualSalePrice +
+                            " startTime = '" + startTime.getText().substring(0,16) + "', " +
+                            " price = " + actualSalePrice + ", " +
                             " deadLine = '" + deadline.getText().substring(0,16) + "' " +
                             " WHERE id = " + localId);
-
-
 
                     Statement stateLog = DB.getConnection().createStatement();
                     int insertLog = stateLog.executeUpdate("INSERT INTO logs(loger, Content, tosmbd, time) " +
                             "VALUES ( + " + Session.sessionId + ", 'Оновив замовлення << " + saleSubj.getSelectedItem() + " на " + saleCount.getText() + " " + saleType.getSelectedItem() + " >> ', " + clientId + " ,'" + DateFormat.stringDateTime(new Date()) + "')");
-
 
                 }catch (Exception ex){
                     ex.printStackTrace();
@@ -719,6 +730,46 @@ public class OrdersTab {
         }
     }
 
+
+    int getPrice(int input, JTextField count, JComboBox type) {
+        try {
+            Statement priceState = DB.getConnection().createStatement();
+
+            ResultSet pricement = priceState.executeQuery("SELECT * FROM sales WHERE id = " + input);
+            float pricePerHour = 1;
+            int actualSalePrice = 1;
+            if (pricement.next()) {
+                actualSalePrice = 1;
+                pricePerHour = pricement.getInt("Price");
+                String tempSaleType = pricement.getString("TimeValue");
+
+
+                if (tempSaleType.equals("доба")) {
+                    pricePerHour /= 24;
+                } else {
+                    if (tempSaleType.equals("тиждень")) {
+                        pricePerHour /= 168;
+                    }
+                }
+            }
+
+
+            if (type.getSelectedItem().equals("доба")) {
+                actualSalePrice =  (int)(pricePerHour * 24) * Integer.parseInt(count.getText());
+            }
+            if (type.getSelectedItem().equals("тиждень")) {
+                actualSalePrice = (int)(pricePerHour * 168) * Integer.parseInt(count.getText());
+            }
+            if (type.getSelectedItem().equals("година")) {
+                actualSalePrice = (int) (pricePerHour * Integer.parseInt(count.getText()));
+            }
+            return actualSalePrice;
+        } catch (Exception ex) {
+            return 0;
+        }
+
+    }
+
     void updateSales() throws Exception{
 
         Statement subjState = DB.getConnection().createStatement();
@@ -771,7 +822,7 @@ class DateFormat{
         LocalDate localDate = sCalendar.datePicker.getDate();
         if (localDate != null) {
             Date d = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            SimpleDateFormat format = new SimpleDateFormat("HH-mm");
+            SimpleDateFormat format = new SimpleDateFormat("HH:mm");
             queryTime = format.format(d);
         }
         return queryTime;
@@ -782,7 +833,7 @@ class DateFormat{
         LocalDate localDate = sCalendar.datePicker.getDate();
         if (localDate != null) {
             Date d = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH-mm");
+            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
             dateTime = format.format(d);
         }
         return dateTime;

@@ -326,7 +326,6 @@ public class ClientTab {
                         JPanel search = (JPanel) overOrder.getComponent(3);
                         JTextField searchField = (JTextField) search.getComponent(0);
                         searchField.setText(sPhoneNumber.getText());
-                        System.out.println(sPhoneNumber.getText());
                         JButton btn = (JButton) search.getComponent(1);
                         btn.doClick();
 
@@ -593,7 +592,6 @@ public class ClientTab {
 
 
             if(client.next()){
-                System.out.println(client.getString("Name"));
                 Statement stateLog = DB.getConnection().createStatement();
                 int insertLog = stateLog.executeUpdate("INSERT INTO logs(loger, Content, tosmbd, time) " +
                         "VALUES ( + " + Session.sessionId + ", 'Додав нового клієнта << " + Name.getText() + " " + Surname.getText() + " " + Lastname.getText() + " >> ', " + client.getInt("id") + " ,'" + DateFormat.stringDateTime(new Date()) + "')");

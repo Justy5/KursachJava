@@ -27,8 +27,8 @@ public class Appoint extends JPanel implements ActionListener {
         myPanel.setMaximumSize(new Dimension(Start.wwidth/5*4,Start.wheight/8*4));
 
         Statement mainStatement = DB.getConnection().createStatement();
-        ResultSet mainResultSet = mainStatement.executeQuery("SELECT * FROM tasks WHERE RegisterBy = " + Session.sessionId + " LIMIT "+ (9*npage) + ", " + 9);
-        System.out.println(" LIMIT "+ (11*npage-10) + ", " + (11*npage));
+        ResultSet mainResultSet = mainStatement.executeQuery("SELECT * FROM tasks WHERE RegisterBy = " + Session.sessionId + " ORDER BY id DESC LIMIT "+ (8*npage) + ", " + 8);
+
 
         ((JLabel) btnPanel.getComponent(1)).setText((npage+1) + "");
         int checker = 0;
@@ -109,7 +109,7 @@ public class Appoint extends JPanel implements ActionListener {
                     toClientText.addItem(fullName);
                 }
                 toClientText.setSelectedItem(realClient);
-                System.out.println(realClient);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -204,8 +204,8 @@ public class Appoint extends JPanel implements ActionListener {
 
 
             statusBox = new JComboBox();
+            statusBox.addItem("New");
             statusBox.addItem("Not Done");
-            statusBox.addItem("In Process");
             statusBox.addItem("Done");
             statusBox.addItem("Dropped");
             statusBox.setSelectedItem(actualStatus);
@@ -236,7 +236,6 @@ public class Appoint extends JPanel implements ActionListener {
             submit.addActionListener(e -> {
                 try {
                     Statement perfStatement = DB.getConnection().createStatement();
-                    System.out.println("SELECT * FROM menegers WHERE manager_name = '" + performText.getSelectedItem() + "'");
                     ResultSet findperf = perfStatement.executeQuery("SELECT * FROM menegers WHERE manager_name = '" + performText.getSelectedItem() + "'");
                     Statement clientStatement = DB.getConnection().createStatement();
 
@@ -255,9 +254,7 @@ public class Appoint extends JPanel implements ActionListener {
                         performerText = findperf.getInt("id");
                     if(findclient.next())
                         toClientId = findclient.getInt("id");
-                    System.out.println("SELECT * FROM clients WHERE Name = '" + Name + "' and SurName = '" + Surname + "' and LastName = '" + Lastname + "'");
                     Statement statement1 = DB.getConnection().createStatement();
-                    System.out.println("deadline " + deadline);
                     int query = statement1.executeUpdate("UPDATE tasks SET " +
                             "Performer = " + performerText + ", " +
                             "toClient = " + toClientId + ", "  +
@@ -272,7 +269,7 @@ public class Appoint extends JPanel implements ActionListener {
 
                     Statement stateLog = DB.getConnection().createStatement();
                     int insertLog = stateLog.executeUpdate("INSERT INTO logs(loger, Content, tosmbd, time) " +
-                            "VALUES ( + " + Session.sessionId + ", 'Оновив завдання << " + subject +" >> ', " + toClientId + " ,'" + DateFormat.stringDateTime(new Date()) + "'");
+                            "VALUES ( + " + Session.sessionId + ", 'Оновив завдання << " + subject +" >> ', " + toClientId + " ,'" + DateFormat.stringDateTime(new Date()) + "')");
 
 
                     JOptionPane.showMessageDialog(createTaskPanel, "Дані змінені успішно!");
@@ -287,7 +284,7 @@ public class Appoint extends JPanel implements ActionListener {
         }
 
 
-        myPanel.add(Box.createVerticalGlue());
+      /*  myPanel.add(Box.createVerticalGlue());*/
         return myPanel;
     }
 

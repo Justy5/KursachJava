@@ -6,17 +6,18 @@ import java.awt.*;
 public class Start {
     public static int wwidth;
     public static int wheight;
-    TransparentJPanel one, two, three, four, five, six;
+    TransparentJPanel one, two, three, four, five, six, seven;
     JFrame f;
     JPanel panel1;
     JTabbedPane tabbedPane1;
-    TransparentJPanel Main, Tasks, Client, Orders, Sales, Logs;
+    TransparentJPanel Main, Tasks, Client, Orders, Sales, Logs, Menegers;
     FirstTab firstTab;
     SecondTab secondTab;
     ClientTab clientTab;
     SalesTab salesTab;
     OrdersTab ordersTab;
     LogsTab logsTab;
+    MenegersTab menegers;
     JScrollPane scrollPane;
 
     Start() throws Exception{
@@ -76,17 +77,6 @@ public class Start {
         four = new TransparentJPanel(new Color(180,216,219));
         four = ordersTab.create(four);
 
-        Sales = new TransparentJPanel();
-        Sales.setPreferredSize(new Dimension(wwidth / 5 * 4, wheight));
-        salesTab = new SalesTab();
-        five = new TransparentJPanel();
-        five = salesTab.create(five);
-
-        Logs = new TransparentJPanel();
-        Logs.setPreferredSize(new Dimension(wwidth / 5 * 4, wheight));
-        logsTab = new LogsTab();
-        six = new TransparentJPanel();
-        six = logsTab.create(six);
 
         one.setPreferredSize(new Dimension(wwidth / 8 * 7, wheight));
         two.setPreferredSize(new Dimension(wwidth / 8 * 7, wheight));
@@ -97,27 +87,59 @@ public class Start {
         scrollPane = new JScrollPane(one, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         Main.setLayout(new BoxLayout(Main, BoxLayout.PAGE_AXIS));
 
-        System.out.println(scrollPane.getPreferredSize().width + " " + scrollPane.getPreferredSize().height);
-        System.out.println(scrollPane.getSize().width + " " + scrollPane.getSize().height);
-
         Main.add(one);
         Tasks.add(two);
         Client.add(three);
         Orders.add(four);
-        Sales.add(five);
-        Logs.add(six);
+
         tabbedPane1.addTab("Головна", Main);
         tabbedPane1.addTab("Задачі", Tasks);
         tabbedPane1.addTab("Клієнти", Client);
         tabbedPane1.addTab("Замовлення", Orders);
-        tabbedPane1.addTab("Послуги", Sales);
-        tabbedPane1.addTab("Логи", Logs);
+
+        int panesCount = 4;
+
+        if(Session.status.equals("admin")) {
+            Sales = new TransparentJPanel();
+            Sales.setPreferredSize(new Dimension(wwidth / 5 * 4, wheight));
+            salesTab = new SalesTab();
+            five = new TransparentJPanel();
+            five = salesTab.create(five);
+
+            Logs = new TransparentJPanel();
+            Logs.setPreferredSize(new Dimension(wwidth / 5 * 4, wheight));
+            logsTab = new LogsTab();
+            six = new TransparentJPanel();
+            six = logsTab.create(six);
+
+            Menegers = new TransparentJPanel();
+            Menegers.setPreferredSize(new Dimension(wwidth / 5 * 4, wheight));
+            menegers = new MenegersTab();
+            seven = new TransparentJPanel();
+            seven = menegers.create(seven);
+
+            Sales.add(five);
+            Logs.add(six);
+            Menegers.add(seven);
+
+            tabbedPane1.addTab("Послуги", Sales);
+            tabbedPane1.addTab("Логи", Logs);
+            tabbedPane1.addTab("Менеджери", Menegers);
+
+            panesCount = 7;
+        }
+
 /*First Tab*/
 /*tabs size*/
-        int height = (f.getSize().height) / 10;
-        for (int i = 0; i < 6; i++) {
+        int height = (wheight) / 10;
+
+        for (int i = 0; i < panesCount; i++) {
             String name = tabbedPane1.getTitleAt(i);
-            tabbedPane1.setTitleAt(i, "<html><div style='padding-left: " + (height / 6) + "px;padding-right: " + (height / 6) + "px; padding-top: " + (height / 6) * 2 + "px; padding-bottom: " + (height / 6) * 2 + "px'><h1>" + name + "</h1></div></html>");
+            if(wheight<1100 && Session.status.equals("admin"))
+                tabbedPane1.setTitleAt(i, "<html><div style='padding-left: " + (height / 6) + "px;padding-right: " + (height / 6) + "px; padding-top: " + (height / 6) * 1.4 + "px; padding-bottom: " + (height / 6) * 1.4  + "px'><h1>" + name + "</h1></div></html>");
+            else{
+                tabbedPane1.setTitleAt(i, "<html><div style='padding-left: " + (height / 6) + "px;padding-right: " + (height / 6) + "px; padding-top: " + (height / 6) * 1.9 + "px; padding-bottom: " + (height / 6) * 1.9  + "px'><h1>" + name + "</h1></div></html>");
+            }
         }
         tabbedPane1.setEnabledAt(1, true);
         panel1.add(tabbedPane1);

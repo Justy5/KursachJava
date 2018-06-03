@@ -190,9 +190,9 @@ public class SecondTab implements ActionListener{
         String deadSearch = DateFormat.stringDateTime(new Date());
 
         myTasks.createMyTaskTable("SELECT * FROM tasks WHERE Performer = "
-                + Session.sessionId + " and status <> 'Dropped' and status <> 'Done' and deadLine LIKE  '%" + deadSearch.substring(0, deadSearch.length()-6) + "%' ORDER BY deadLine DESC, priority DESC, timeCreate DESC");
+                + Session.sessionId + " and status <> 'Dropped' and status <> 'Done' and deadLine LIKE  '%" + deadSearch.substring(0, deadSearch.length()-6) + "%' ORDER BY deadLine DESC, priority DESC, id DESC");
         toDoTasks.createMyTaskTable("SELECT * FROM tasks WHERE Performer = " +
-                + Session.sessionId + " and status <> 'Dropped' and status <> 'Done' and deadLine NOT LIKE  '%" + deadSearch.substring(0, deadSearch.length()-6) + "%' ORDER BY deadLine DESC, priority DESC, timeCreate DESC");
+                + Session.sessionId + " and status <> 'Dropped' and status <> 'Done' and deadLine NOT LIKE  '%" + deadSearch.substring(0, deadSearch.length()-6) + "%' ORDER BY deadLine DESC, priority DESC, id DESC");
         allTasks.createMyTaskTable("SELECT * FROM tasks WHERE Performer = "
                 + Session.sessionId + " ORDER BY deadLine DESC, Priority DESC");
 
@@ -218,12 +218,12 @@ public class SecondTab implements ActionListener{
             Statement statement = DB.getConnection().createStatement();
             Statement findPerformer = DB.getConnection().createStatement();
             String performTextValue = (String) performText.getSelectedItem();
-            System.out.println("grtgdfgdfg " + performTextValue);
+
             int perf=0;
             if(performTextValue.equals("You")){
                 performTextValue = Session.name;
             }
-            System.out.println("123 " + performTextValue);
+
             ResultSet perfs = findPerformer.executeQuery("SELECT id FROM menegers WHERE manager_name = '" + performTextValue + "'");
             if(perfs.next()){
                 perf = perfs.getInt("id");
@@ -486,8 +486,6 @@ class MyTasks extends JPanel{
                 Statement taskState = DB.getConnection().createStatement();
                 ResultSet taskLog = taskState.executeQuery("SELECT Subject, toClient FROM tasks WHERE id = " + done.getActionCommand());
                 if(taskLog.next()) {
-                    System.out.println("INSERT INTO logs(loger, Content, tosmbd, time) " +
-                            "VALUES (" + Session.sessionId + ", 'Виконав завдання << " + taskLog.getString("Subject") +" >> ', " + taskLog.getString("toClient") + " ,'" + DateFormat.stringDateTime(new Date()) + "')");
 
                     Statement stateLog = DB.getConnection().createStatement();
                     int insertLog = stateLog.executeUpdate("INSERT INTO logs(loger, Content, tosmbd, time) " +
